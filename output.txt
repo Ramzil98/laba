@@ -1,0 +1,279 @@
+Server [localhost]:
+Database [postgres]:
+Port [5432]:
+Username [postgres]: postgres
+Пароль пользователя postgres:
+psql (16.1)
+ПРЕДУПРЕЖДЕНИЕ: Кодовая страница консоли (866) отличается от основной
+                страницы Windows (1251).
+                8-битовые (русские) символы могут отображаться некорректно.
+                Подробнее об этом смотрите документацию psql, раздел
+                "Notes for Windows users".
+Введите "help", чтобы получить справку.
+
+postgres=# \! chcp 1251
+Текущая кодовая страница: 1251
+postgres=# CREATE DATABASE gilaziev_4384;
+CREATE DATABASE
+postgres=# \l
+                                                                   Список баз данных
+      Имя      | Владелец | Кодировка | Провайдер локали |     LC_COLLATE      |      LC_CTYPE       | локаль ICU | Правила ICU |     Права доступа
+---------------+----------+-----------+------------------+---------------------+---------------------+------------+-------------+-----------------------
+ gilaziev_4384 | postgres | UTF8      | libc             | Russian_Russia.1251 | Russian_Russia.1251 |            |             |
+ postgres      | postgres | UTF8      | libc             | Russian_Russia.1251 | Russian_Russia.1251 |            |             |
+ template0     | postgres | UTF8      | libc             | Russian_Russia.1251 | Russian_Russia.1251 |            |
+    | =c/postgres          +
+               |          |           |                  |                     |                     |            |
+    | postgres=CTc/postgres
+ template1     | postgres | UTF8      | libc             | Russian_Russia.1251 | Russian_Russia.1251 |            |
+    | =c/postgres          +
+               |          |           |                  |                     |                     |            |
+    | postgres=CTc/postgres
+(4 строки)
+
+
+postgres=# \c gilaziev_4384
+Вы подключены к базе данных "gilaziev_4384" как пользователь "postgres".
+gilaziev_4384=# -- Создание таблицы сотрудников
+gilaziev_4384=# CREATE TABLE employees (
+gilaziev_4384(#     employee_id SERIAL PRIMARY KEY,
+gilaziev_4384(#     full_name VARCHAR(100),
+gilaziev_4384(#     date_of_birth DATE,
+gilaziev_4384(#     start_date DATE,
+gilaziev_4384(#     position VARCHAR(100),
+gilaziev_4384(#     employee_level VARCHAR(10),
+gilaziev_4384(#     salary NUMERIC,
+gilaziev_4384(#     department_id INTEGER,
+gilaziev_4384(#     has_permission BOOLEAN
+gilaziev_4384(# );
+CREATE TABLE
+gilaziev_4384=# -- Создание таблицы отделов
+gilaziev_4384=# CREATE TABLE departments (
+gilaziev_4384(#     department_id SERIAL PRIMARY KEY,
+gilaziev_4384(#     department_name VARCHAR(100),
+gilaziev_4384(#     manager_name VARCHAR(100),
+gilaziev_4384(#     employee_count INTEGER
+gilaziev_4384(# );
+CREATE TABLE
+gilaziev_4384=# -- Создание таблицы оценок сотрудников за квартал
+gilaziev_4384=# CREATE TABLE employee_ratings (
+gilaziev_4384(#     rating_id SERIAL PRIMARY KEY,
+gilaziev_4384(#     employee_id INTEGER,
+gilaziev_4384(#     quarter INTEGER,
+gilaziev_4384(#     rating CHAR(1)
+gilaziev_4384(# );
+CREATE TABLE
+gilaziev_4384=# -- Добавление исходных данных в таблицу сотрудников
+gilaziev_4384=# INSERT INTO employees (full_name, date_of_birth, start_date, position, employee_level, salary, department_id, has_permission)
+gilaziev_4384-# VALUES
+gilaziev_4384-#     ('Артемов Игорь Семенович', '1998-06-19', '2019-03-07', 'Менеджер', 'senior', 50000, 1, true),
+gilaziev_4384-#     ('Афанасьев Сергей Алексадрович', '1982-12-10', '2016-07-25', 'Разработчик', 'middle', 40000, 2, true),
+gilaziev_4384-#     ('Закиуллин Рамиль Рустемович', '1997-12-10', '2019-06-10', 'Тестировщик', 'jun', 30000, 1, false),
+gilaziev_4384-#     ('Козлова Марина Сергеевна', '1989-08-22', '2022-01-28', 'Аналитик', 'senior', 60000, 2, true),
+gilaziev_4384-#     ('Морозов Артем Владимирович', '1999-08-20', '2021-04-15', 'Дизайнер', 'middle', 45000, 1, true),
+gilaziev_4384-#     ('Гилазиев Рамзиль Фаритович', '1998-11-06', '2020-09-05', 'Руководитель проектов', 'lead', 80000, 3, true);
+INSERT 0 6
+gilaziev_4384=# -- Добавление исходных данных в таблицу отделов
+gilaziev_4384=# INSERT INTO departments (department_name, manager_name, employee_count)
+gilaziev_4384-# VALUES
+gilaziev_4384-#     ('Отдел разработки', 'Афанасьев Сергей Алексадрович', 10),
+gilaziev_4384-#     ('Отдел тестирования', 'Закиуллин Рамиль Рустемович', 5),
+gilaziev_4384-#     ('Отдел управления проектами', 'Козлова Марина Сергеевна', 7),
+gilaziev_4384-#     ('Отдел Интеллектуального анализа данных', 'Ким Юлия Владимировна', 3);
+INSERT 0 4
+gilaziev_4384=# -- 6.1 Уникальный номер сотрудника, его ФИО и стаж работы – для всех сотрудников компании
+gilaziev_4384=# SELECT employee_id, full_name, AGE(CURRENT_DATE, start_date) AS experience
+gilaziev_4384-# FROM employees;
+ employee_id |           full_name           |       experience
+-------------+-------------------------------+------------------------
+           1 | Артемов Игорь Семенович       | 4 years 10 mons 6 days
+           2 | Афанасьев Сергей Алексадрович | 7 years 5 mons 19 days
+           3 | Закиуллин Рамиль Рустемович   | 4 years 7 mons 3 days
+           4 | Козлова Марина Сергеевна      | 1 year 11 mons 16 days
+           5 | Морозов Артем Владимирович    | 2 years 8 mons 28 days
+           6 | Гилазиев Рамзиль Фаритович    | 3 years 4 mons 8 days
+(6 строк)
+
+
+gilaziev_4384=# -- 6.2 Уникальный номер сотрудника, его ФИО и стаж работы – только первых 3-х сотрудников
+gilaziev_4384=# SELECT employee_id, full_name, AGE(CURRENT_DATE, start_date) AS experience
+gilaziev_4384-# FROM employees
+gilaziev_4384-# ORDER BY start_date
+gilaziev_4384-# LIMIT 3;
+ employee_id |           full_name           |       experience
+-------------+-------------------------------+------------------------
+           2 | Афанасьев Сергей Алексадрович | 7 years 5 mons 19 days
+           1 | Артемов Игорь Семенович       | 4 years 10 mons 6 days
+           3 | Закиуллин Рамиль Рустемович   | 4 years 7 mons 3 days
+(3 строки)
+
+
+gilaziev_4384=# -- 6.3 Уникальный номер сотрудников - водителей (допустим, их должности содержат слово "водитель")
+gilaziev_4384=# SELECT employee_id, full_name
+gilaziev_4384-# FROM employees
+gilaziev_4384-# WHERE position ILIKE '%водитель%';
+ employee_id |         full_name
+-------------+----------------------------
+           6 | Гилазиев Рамзиль Фаритович
+(1 строка)
+
+
+gilaziev_4384=# -- 6.4 Выведите номера сотрудников, которые хотя бы за 1 квартал получили оценку D или E
+gilaziev_4384=# SELECT DISTINCT er.employee_id, e.full_name
+gilaziev_4384-# FROM employee_ratings er
+gilaziev_4384-# JOIN employees e ON er.employee_id = e.employee_id
+gilaziev_4384-# WHERE er.rating IN ('D', 'E');
+ employee_id | full_name
+-------------+-----------
+(0 строк)
+
+
+gilaziev_4384=# -- 6.5 Выведите самую высокую зарплату в компании
+gilaziev_4384=# SELECT MAX(salary) AS max_salary
+gilaziev_4384-# FROM employees;
+ max_salary
+------------
+      80000
+(1 строка)
+
+
+gilaziev_4384=# -- 6.6 * Выведите название самого крупного отдела
+gilaziev_4384=# SELECT department_name
+gilaziev_4384-# FROM departments
+gilaziev_4384-# ORDER BY employee_count DESC
+gilaziev_4384-# LIMIT 1;
+ department_name
+------------------
+ Отдел разработки
+(1 строка)
+
+
+gilaziev_4384=# -- 6.7 * Выведите номера сотрудников от самых опытных до вновь прибывших
+gilaziev_4384=# SELECT employee_id, full_name, start_date
+gilaziev_4384-# FROM employees
+gilaziev_4384-# ORDER BY start_date;
+ employee_id |           full_name           | start_date
+-------------+-------------------------------+------------
+           2 | Афанасьев Сергей Алексадрович | 2016-07-25
+           1 | Артемов Игорь Семенович       | 2019-03-07
+           3 | Закиуллин Рамиль Рустемович   | 2019-06-10
+           6 | Гилазиев Рамзиль Фаритович    | 2020-09-05
+           5 | Морозов Артем Владимирович    | 2021-04-15
+           4 | Козлова Марина Сергеевна      | 2022-01-28
+(6 строк)
+
+
+gilaziev_4384=# -- 6.8 * Рассчитайте среднюю зарплату для каждого уровня сотрудников
+gilaziev_4384=# SELECT employee_level, AVG(salary) AS avg_salary
+gilaziev_4384-# FROM employees
+gilaziev_4384-# GROUP BY employee_level;
+ employee_level |     avg_salary
+----------------+--------------------
+ jun            | 30000.000000000000
+ lead           | 80000.000000000000
+ senior         | 55000.000000000000
+ middle         | 42500.000000000000
+(4 строки)
+
+
+gilaziev_4384=# -- 6.9 * Добавьте столбец с информацией о коэффициенте годовой премии к основной таблице
+gilaziev_4384=# ALTER TABLE employees
+gilaziev_4384-# ADD COLUMN annual_bonus_coefficient NUMERIC;
+ALTER TABLE
+gilaziev_4384=#
+gilaziev_4384=# UPDATE employees
+gilaziev_4384-# SET annual_bonus_coefficient = 1.0; -- Установим базовое значение коэффициента 1.0
+UPDATE 6
+gilaziev_4384=#
+gilaziev_4384=# UPDATE employees
+gilaziev_4384-# SET annual_bonus_coefficient = CASE
+gilaziev_4384-#     WHEN EXISTS (SELECT * FROM employee_ratings WHERE employee_id = employees.employee_id AND rating = 'A') THEN annual_bonus_coefficient * 1.2
+gilaziev_4384-#     WHEN EXISTS (SELECT * FROM employee_ratings WHERE employee_id = employees.employee_id AND rating = 'B') THEN annual_bonus_coefficient * 1.1
+gilaziev_4384-#     WHEN EXISTS (SELECT * FROM employee_ratings WHERE employee_id = employees.employee_id AND rating = 'C') THEN annual_bonus_coefficient
+gilaziev_4384-#     WHEN EXISTS (SELECT * FROM employee_ratings WHERE employee_id = employees.employee_id AND rating = 'D') THEN annual_bonus_coefficient * 0.9
+gilaziev_4384-#     WHEN EXISTS (SELECT * FROM employee_ratings WHERE employee_id = employees.employee_id AND rating = 'E') THEN annual_bonus_coefficient * 0.8
+gilaziev_4384-#     ELSE annual_bonus_coefficient
+gilaziev_4384-# END;
+UPDATE 6
+gilaziev_4384=# SELECT full_name
+gilaziev_4384-# FROM employees
+gilaziev_4384-# WHERE salary = (SELECT MAX(salary) FROM employees);
+         full_name
+----------------------------
+ Гилазиев Рамзиль Фаритович
+(1 строка)
+
+
+gilaziev_4384=# -- Выборка полного имени сотрудников, отсортированных по алфавиту
+gilaziev_4384=# SELECT full_name
+gilaziev_4384-# FROM employees
+gilaziev_4384-# ORDER BY full_name ASC;
+           full_name
+-------------------------------
+ Артемов Игорь Семенович
+ Афанасьев Сергей Алексадрович
+ Гилазиев Рамзиль Фаритович
+ Закиуллин Рамиль Рустемович
+ Козлова Марина Сергеевна
+ Морозов Артем Владимирович
+(6 строк)
+
+
+gilaziev_4384=# SELECT employee_level, AVG(EXTRACT(YEAR FROM (AGE(CURRENT_DATE, start_date)))) AS avg_experience_years
+gilaziev_4384-# FROM employees
+gilaziev_4384-# GROUP BY employee_level;
+ employee_level | avg_experience_years
+----------------+----------------------
+ jun            |   4.0000000000000000
+ lead           |   3.0000000000000000
+ senior         |   2.5000000000000000
+ middle         |   4.5000000000000000
+(4 строки)
+
+
+gilaziev_4384=# SELECT e.full_name, d.department_name
+gilaziev_4384-# FROM employees e
+gilaziev_4384-# JOIN departments d ON e.department_id = d.department_id;
+           full_name           |      department_name
+-------------------------------+----------------------------
+ Артемов Игорь Семенович       | Отдел разработки
+ Афанасьев Сергей Алексадрович | Отдел тестирования
+ Закиуллин Рамиль Рустемович   | Отдел разработки
+ Козлова Марина Сергеевна      | Отдел тестирования
+ Морозов Артем Владимирович    | Отдел разработки
+ Гилазиев Рамзиль Фаритович    | Отдел управления проектами
+(6 строк)
+
+
+gilaziev_4384=# SELECT d.department_name, e.full_name, e.salary
+gilaziev_4384-# FROM employees e
+gilaziev_4384-# JOIN departments d ON e.department_id = d.department_id
+gilaziev_4384-# WHERE (e.department_id, e.salary) IN (SELECT department_id, MAX(salary) FROM employees GROUP BY department_id);
+      department_name       |         full_name          | salary
+----------------------------+----------------------------+--------
+ Отдел разработки           | Артемов Игорь Семенович    |  50000
+ Отдел тестирования         | Козлова Марина Сергеевна   |  60000
+ Отдел управления проектами | Гилазиев Рамзиль Фаритович |  80000
+(3 строки)
+
+
+gilaziev_4384=# SELECT d.department_name
+gilaziev_4384-# FROM employees e
+gilaziev_4384-# JOIN departments d ON e.department_id = d.department_id
+gilaziev_4384-# GROUP BY d.department_name
+gilaziev_4384-# ORDER BY SUM(e.salary * e.annual_bonus_coefficient) DESC
+gilaziev_4384-# LIMIT 1;
+ department_name
+------------------
+ Отдел разработки
+(1 строка)
+
+
+gilaziev_4384=# UPDATE employees
+gilaziev_4384-# SET salary = CASE
+gilaziev_4384-#     WHEN annual_bonus_coefficient > 1.2 THEN salary * 1.2
+gilaziev_4384-#     WHEN annual_bonus_coefficient >= 1 AND annual_bonus_coefficient <= 1.2 THEN salary * 1.1
+gilaziev_4384-#     ELSE salary
+gilaziev_4384-# END;
+UPDATE 6
+gilaziev_4384=#
